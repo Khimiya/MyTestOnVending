@@ -17,27 +17,30 @@ namespace NUnitTestProject1
         }
 
         [Test]
-        public void GetConsoleInput_Successful()
+        public void ConvertToIntUserInput_ValidInput_ConvertsStringInputToInt_Successfully_Test()
         {
-            //Arrage
+            //Arrange
             Console.SetIn(new StringReader("10"));
 
             //Action
-            int result = userInput.GetConsoleInput();
+            int result = userInput.ConvertToIntUserInput();
 
             //Assert
             Assert.AreEqual(10, result);
         }
 
         [Test]
-        public void GetConsoleInput_InvalidInput()
+        public void ConvertToIntUserInput_InvalidInput_WhenFailsToConvertStringToInt_SetsToZero_Test()
         {
-            //Arrage
+            //Arrange
             Console.SetIn(new StringReader("abc"));
 
-            //Action & Assert
-            Assert.DoesNotThrow(()=> userInput.GetConsoleInput());
-            
+            //Action
+            int result = userInput.ConvertToIntUserInput();
+
+            //Assert
+            Assert.AreEqual(0, result);
+
         }
 
 
