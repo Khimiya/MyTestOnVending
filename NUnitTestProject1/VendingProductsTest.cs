@@ -2,129 +2,95 @@ using Moq;
 using MyTestOnVending.VendingMachine;
 using NUnit.Framework;
 using System;
-//using Xunit.Sdk;
 
 namespace NUnitTestProject1
 {
     [TestFixture]
     public class VendingProductsTest
     {
-        public VendingProducts vp;
-        public Mock<IVendingProducts> mockVp;
+        public VendingProducts vendingProducts;
         public Mock<IUserInput> mockIUserInput;
         [SetUp]
         public void Setup()
         {
             mockIUserInput = new Mock<IUserInput>();
-            vp = new VendingProducts(mockIUserInput.Object);
-            vp.ResetValues();
+            vendingProducts = new VendingProducts(mockIUserInput.Object);
+            vendingProducts.ResetValues();
         }
 
         [Test]
-        public void ResetValues_Successful_Test()
+        public void ResetValues_WhenCalledSetsGloblaValueToDefault_Successfully_Test()
         {
             //Arrage
-            vp.costOfSelection = 10;
-            vp.totalAmount = 10;
-            vp.IsCoinToBeIserted = true;
+            vendingProducts.priceOfProduct = 10;
+            vendingProducts.totalAmount = 10;
+            vendingProducts.IsCoinToBeInserted = true;
 
             //Action
-            vp.ResetValues();
+            vendingProducts.ResetValues();
 
             //Assert
-            Assert.AreEqual(0, vp.costOfSelection);
-            Assert.AreEqual(0, vp.totalAmount);
-            Assert.AreEqual(false, vp.IsCoinToBeIserted);
+            Assert.AreEqual(0, vendingProducts.priceOfProduct);
+            Assert.AreEqual(0, vendingProducts.totalAmount);
+            Assert.AreEqual(false, vendingProducts.IsCoinToBeInserted);
         }
 
-        [Test]
-        public void SelectedCoinDeposited_Calls_GetConsoleInput_WhenAmountIsInSufficient_Successful_Test()
-        {
-            //Arrange            
-            mockIUserInput.Setup(x => x.GetConsoleInput()).Returns(0);
-            
-            vp.costOfSelection = 0.25m;
-
-            //Action            
-            var ex= Assert.Throws<Exception>(()=> vp.SelectedCoinDeposited(9));
-
-            //Assert
-            mockIUserInput.Verify(x => x.GetConsoleInput(), Times.AtLeastOnce);
-        }
+        
 
         [Test]
-        public void SelectedCoinDeposited_Calls_GetConsoleInput_InValidCoin_Successful_Test()
+        public void SetCostOfSelectedProduct_WhenValidProductNumberSelectedSetspriceOfProductToPrice_Test()
         {
             //Arrange            
-            mockIUserInput.Setup(x => x.GetConsoleInput()).Returns(0);
-            
-            vp.costOfSelection = 0.50m;
-            vp.totalAmount = 0.25m;
-
-            //Action            
-            
-            var ex= Assert.Throws<Exception>(()=> vp.SelectedCoinDeposited(10));
-
-            //Assert
-            mockIUserInput.Verify(x => x.GetConsoleInput(), Times.Once);
-            Assert.AreEqual(vp.IsCoinToBeIserted, false);
-        }
-
-        [Test]
-        public void DisplayProductList_ValidSelection_Sets_CostOfSelection_Successful_Test()
-        {
-            //Arrange            
-            mockIUserInput.Setup(x => x.GetConsoleInput()).Returns(1);
+            mockIUserInput.Setup(x => x.ConvertToIntUserInput()).Returns(1);
             
             
             //Action            
-            vp.DisplayProductList();
+            vendingProducts.SetCostOfSelectedProduct();
 
             //Assert
-            mockIUserInput.Verify(x => x.GetConsoleInput(), Times.Once);
-            Assert.Greater(vp.costOfSelection, 0);
+            mockIUserInput.Verify(x => x.ConvertToIntUserInput(), Times.Once);
+            Assert.Greater(vendingProducts.priceOfProduct, 0);
         }
 
         [Test]
-        public void DisplayProductList_InValidSelection_Sets_CostOfSelectionToZero_Successful_Test()
+        public void SetCostOfSelectedProduct_WhenInValidProductNumberSelectedSetsPriceOfProductToZero_Test()
         {
             //Arrange            
-            mockIUserInput.Setup(x => x.GetConsoleInput()).Returns(5);
+            mockIUserInput.Setup(x => x.ConvertToIntUserInput()).Returns(5);
             
 
             //Action            
-            vp.DisplayProductList();
+            vendingProducts.SetCostOfSelectedProduct();
 
             //Assert
-            mockIUserInput.Verify(x => x.GetConsoleInput(), Times.Once);
-            Assert.AreEqual(vp.costOfSelection, 0);
+            mockIUserInput.Verify(x => x.ConvertToIntUserInput(), Times.Once);
+            Assert.AreEqual(vendingProducts.priceOfProduct, 0);
         }
 
         [Test]
-        public void CoinsDeposited_Sets_TotalAmount_Successful_Test()
+        public void SumOfCoinsDeposited_AddsCoinValueToTotalAmount_Successful_Test()
         {
             //Arrange
             
-            vp.totalAmount = 0.25m;
+            vendingProducts.totalAmount = 0.25m;
 
             //Action
-            vp.CoinsDeposited(0.25m);
+            vendingProducts.SumOfCoinsDeposited(0.25m);
 
             //Assert
-            Assert.AreEqual(vp.totalAmount, 0.50m);
+            Assert.AreEqual(vendingProducts.totalAmount, 0.50m);
 
         }
 
         [Test]
-        public void IsTotalAmountEqualsToCost_Returns_True_Test()
+        public void IsTotalAmountEqualsToCost_ReturnsTrue_WhenSumOfDepositedIsGreaterThanOrEqualsCostOfProduct_Test()
         {
-            //Arrange
-            
-            vp.totalAmount = 0.35m;
-            vp.costOfSelection = 0.25m;
+            //Arrange            
+            vendingProducts.totalAmount = 0.35m;
+            vendingProducts.priceOfProduct = 0.25m;
 
             //Action
-            bool result = vp.IsTotalAmountEqualsToCost();
+            bool result = vendingProducts.IsTotalAmountEqualsToCost();
 
             //Assert
             Assert.IsTrue(result);
@@ -132,15 +98,15 @@ namespace NUnitTestProject1
         }
 
         [Test]
-        public void IsTotalAmountEqualsToCost_Returns_False_Test()
+        public void IsTotalAmountEqualsToCost_ReturnsFalse_WhenSumOfDepositedIsLessThanCostOfProduct_Test()
         {
             //Arrange
             
-            vp.totalAmount = 0.15m;
-            vp.costOfSelection = 0.25m;
+            vendingProducts.totalAmount = 0.15m;
+            vendingProducts.priceOfProduct = 0.25m;
 
             //Action
-            bool result = vp.IsTotalAmountEqualsToCost();
+            bool result = vendingProducts.IsTotalAmountEqualsToCost();
 
             //Assert
             Assert.IsFalse(result);
@@ -148,20 +114,56 @@ namespace NUnitTestProject1
         }
 
         [Test]
-        public void CheckTotal_DoesNotCall_RestartMenu_Test()
+        public void DepositCoin_WhenTotalAmountGreaterThanOrEqualsToCostOfProduct_Test()
         {
-            //Arrange
-            mockIUserInput.Setup(x => x.GetConsoleInput()).Verifiable();            
-            vp.totalAmount = 0.15m;
-            vp.costOfSelection = 0.25m;
+            //Arrange 
+            vendingProducts.priceOfProduct = 0.20m;
+            vendingProducts.totalAmount=0.10m;
 
-            //Action
-            vp.CheckTotal(9);
 
-            //Assert
-            mockIUserInput.Verify(x=>x.GetConsoleInput(), Times.Never);
+            //Action            
+            vendingProducts.DepositCoin(3);
+
+            //Assert            
+            Assert.GreaterOrEqual(vendingProducts.totalAmount,vendingProducts.priceOfProduct);
+            Assert.IsTrue(vendingProducts.IsCoinToBeInserted);
+
         }
 
+        [Test]
+        public void DepositCoin_WhenTotalAmountLessThanToCostOfProduct_Test()
+        {
+            //Arrange 
+            vendingProducts.priceOfProduct = 0.20m;
+            vendingProducts.totalAmount = 0.10m;
+
+
+            //Action            
+            vendingProducts.DepositCoin(1);
+
+            //Assert            
+            Assert.Less(vendingProducts.totalAmount, vendingProducts.priceOfProduct);
+            Assert.IsFalse(vendingProducts.IsCoinToBeInserted);
+
+        }
+
+        [Test]
+        public void DepositCoin_WhenInvalidCoinInsertedThenInvalidArgumentPassedToShowMenu_Test()
+        {
+            //Arrange 
+            mockIUserInput.Setup(x => x.ConvertToIntUserInput()).Returns(0);
+            vendingProducts.priceOfProduct = 0.20m;
+            vendingProducts.totalAmount = 0.10m;
+
+
+            //Action            
+            var ex= Assert.Throws<Exception>(()=> { vendingProducts.DepositCoin(5); });
+
+            //Assert   
+            mockIUserInput.Verify(x => x.ConvertToIntUserInput(), Times.Once);            
+            Assert.IsFalse(vendingProducts.IsCoinToBeInserted);
+
+        }
 
     }
 }

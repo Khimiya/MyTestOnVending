@@ -2,6 +2,6 @@
 {
     public interface IUserInput
     {
-        int GetConsoleInput();
+        int ConvertToIntUserInput();
     }
 }

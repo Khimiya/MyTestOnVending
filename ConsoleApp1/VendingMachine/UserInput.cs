@@ -10,11 +10,11 @@ namespace MyTestOnVending.VendingMachine
             
         }       
 
-        public int GetConsoleInput()
+        public int ConvertToIntUserInput()
         {
-            int selectedProductNumber;
-            int.TryParse(Console.ReadLine(), out selectedProductNumber);
-            return selectedProductNumber;
+            int selection;
+            int.TryParse(Console.ReadLine(), out selection);
+            return selection;
         }
 
         
